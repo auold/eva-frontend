@@ -44,6 +44,17 @@ const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
   currentUser
 }) => {
   const loading = currentUser && Object.keys(currentUser).length;
+  const time = new Date();
+  let greeting = " ";
+  if (time.getHours() < 10) {
+    greeting = "早安";
+  } else if (time.getHours() < 14) {
+    greeting = "午安";
+  } else if (time.getHours() < 17) {
+    greeting = "下午好";
+  } else {
+    greeting = "晚上好";
+  }
   if (!loading) {
     return <Skeleton avatar paragraph={{ rows: 1 }} active />;
   }
@@ -54,8 +65,7 @@ const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
       </div>
       <div className={styles.content}>
         <div className={styles.contentTitle}>
-          早安，
-          {currentUser.name}
+          {greeting}，{currentUser.name}
           ，祝你开心每一天！
         </div>
         <div>
