@@ -2,22 +2,22 @@ import { AnyAction, Reducer } from "redux";
 import { EffectsCommandMap } from "dva";
 import {
   ActivitiesType,
-  CurrentUser,
   NoticeType,
-  RadarDataType
+  RadarDataType,
+  UserInfo
 } from "./data.d";
 import {
   fakeChartData,
   queryActivities,
-  queryCurrent,
-  queryProjectNotice
+  queryProjectNotice,
+  queryCurrentUserInfo
 } from "./service";
 
 export interface ModalState {
-  currentUser: Partial<CurrentUser>;
   projectNotice: NoticeType[];
   activities: ActivitiesType[];
   radarData: RadarDataType[];
+  currentUserInfo: Partial<UserInfo>
 }
 
 export type Effect = (
@@ -36,36 +36,27 @@ export interface ModelType {
   };
   effects: {
     init: Effect;
-    fetchUserCurrent: Effect;
     fetchProjectNotice: Effect;
     fetchActivitiesList: Effect;
     fetchChart: Effect;
+    fetchCurrentUserInfo: Effect;
   };
 }
 
 const Model: ModelType = {
   namespace: "dashboardWorkplace",
   state: {
-    currentUser: {},
     projectNotice: [],
     activities: [],
-    radarData: []
+    radarData: [],
+    currentUserInfo: {}
   },
   effects: {
     *init(_, { put }) {
-      yield put({ type: "fetchUserCurrent" });
       yield put({ type: "fetchProjectNotice" });
       yield put({ type: "fetchActivitiesList" });
       yield put({ type: "fetchChart" });
-    },
-    *fetchUserCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
-      yield put({
-        type: "save",
-        payload: {
-          currentUser: response
-        }
-      });
+      yield put({ type: "fetchCurrentUserInfo" });
     },
     *fetchProjectNotice(_, { call, put }) {
       const response = yield call(queryProjectNotice);
@@ -93,6 +84,15 @@ const Model: ModelType = {
           radarData
         }
       });
+    },
+    *fetchCurrentUserInfo(_, { call, put }) {
+      const response = yield call(queryCurrentUserInfo);
+      yield put({
+        type: "save",
+        payload: {
+          currentUserInfo: response
+        }
+      })
     }
   },
   reducers: {
@@ -104,10 +104,10 @@ const Model: ModelType = {
     },
     clear() {
       return {
-        currentUser: {},
         projectNotice: [],
         activities: [],
-        radarData: []
+        radarData: [],
+        currentUserInfo: {}
       };
     }
   }

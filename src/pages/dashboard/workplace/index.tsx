@@ -7,15 +7,14 @@ import { formatMessage } from "umi/locale";
 import { PageHeaderWrapper } from "@ant-design/pro-layout";
 import { connect } from "dva";
 import moment from "moment";
-import Radar from "./components/Radar";
 import { ModalState } from "./model";
 import EditableLinkGroup from "./components/EditableLinkGroup";
 import styles from "./style.less";
 import {
   ActivitiesType,
-  CurrentUser,
   NoticeType,
-  RadarDataType
+  RadarDataType,
+  UserInfo
 } from "./data.d";
 
 const links = [
@@ -30,23 +29,23 @@ const links = [
 ];
 
 interface dashboardWorkplaceProps {
-  currentUser: CurrentUser;
   projectNotice: NoticeType[];
   activities: ActivitiesType[];
   radarData: RadarDataType[];
   dispatch: Dispatch<any>;
-  currentUserLoading: boolean;
   projectLoading: boolean;
   activitiesLoading: boolean;
+  currentUserInfo: UserInfo;
+  currentUserInfoLoading: boolean;
 }
 
-const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
-  currentUser
+const PageHeaderContent: React.FC<{ currentUserInfo: UserInfo }> = ({
+  currentUserInfo
 }) => {
-  const loading = currentUser && Object.keys(currentUser).length;
+  const loading = currentUserInfo && Object.keys(currentUserInfo).length;
   const time = new Date();
   let content = '祝你开心每一天！';
-  if (currentUser.name == '笛先生'){
+  if (currentUserInfo.name == '笛先生'){
     content = '祝你满绩每一天！'
   }
   let greeting = " ";
@@ -65,53 +64,61 @@ const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
   return (
     <div className={styles.pageHeaderContent}>
       <div className={styles.avatar}>
-        <Avatar size="large" src={currentUser.avatar} />
+        <Avatar size="large" src={currentUserInfo.avatar} />
       </div>
       <div className={styles.content}>
         <div className={styles.contentTitle}>
-          {greeting}，{currentUser.name}
+          {greeting}，{currentUserInfo.name}
           ，{content}
         </div>
         <div>
-          {currentUser.title} | {currentUser.group}
+          {currentUserInfo.title} | {currentUserInfo.group}
         </div>
       </div>
     </div>
   );
 };
 
-const ExtraContent: React.FC<{}> = () => (
-  <div className={styles.extraContent}>
-    <div className={styles.statItem}>
-      <Statistic
-        title={formatMessage({ id: "component.workspace.weekly-fix-count" })}
-        value={56}
-      />
-    </div>
-    <div className={styles.statItem}>
-      <Statistic
-        title={formatMessage({ id: "component.workspace.total-fix-count" })}
-        value={2223}
-      />
-    </div>
-  </div>
-);
+const ExtraContent: React.FC<{ currentUserInfo: UserInfo }> = ({
+    currentUserInfo
+}) => {
+  const loading = currentUserInfo && Object.keys(currentUserInfo).length;
+  if (!loading) {
+    return <Skeleton avatar paragraph={{ rows: 1 }} active />;
+  }
+  return (
+      <div className={styles.extraContent}>
+        <div className={styles.statItem}>
+          <Statistic
+              title={formatMessage({id: "component.workspace.weekly-fix-count"})}
+              value={currentUserInfo.fixcount.weekly}
+          />
+        </div>
+        <div className={styles.statItem}>
+          <Statistic
+              title={formatMessage({id: "component.workspace.total-fix-count"})}
+              value={currentUserInfo.fixcount.total}
+          />
+        </div>
+      </div>
+  );
+}
 
 @connect(
   ({
-    dashboardWorkplace: { currentUser, projectNotice, activities, radarData },
+    dashboardWorkplace: { projectNotice, activities, radarData, currentUserInfo },
     loading
   }: {
     dashboardWorkplace: ModalState;
     loading: { effects: any };
   }) => ({
-    currentUser,
     projectNotice,
     activities,
     radarData,
-    currentUserLoading: loading.effects["dashboardWorkplace/fetchUserCurrent"],
+    currentUserInfo,
     projectLoading: loading.effects["dashboardWorkplace/fetchProjectNotice"],
-    activitiesLoading: loading.effects["dashboardWorkplace/fetchActivitiesList"]
+    activitiesLoading: loading.effects["dashboardWorkplace/fetchActivitiesList"],
+    currentUserInfoLoading: loading.effects["dashboardWorkplace/fetchCurrentUserInfo"],
   })
 )
 class Workplace extends Component<dashboardWorkplaceProps> {
@@ -163,18 +170,17 @@ class Workplace extends Component<dashboardWorkplaceProps> {
 
   render() {
     const {
-      currentUser,
       activities,
       projectNotice,
       projectLoading,
       activitiesLoading,
-      radarData
+      currentUserInfo,
     } = this.props;
 
     return (
       <PageHeaderWrapper
-        content={<PageHeaderContent currentUser={currentUser} />}
-        extraContent={<ExtraContent />}
+        content={<PageHeaderContent currentUserInfo={currentUserInfo} />}
+        extraContent={<ExtraContent currentUserInfo={currentUserInfo} />}
       >
         <Row gutter={24}>
           <Col xl={16} lg={24} md={24} sm={24} xs={24}>
