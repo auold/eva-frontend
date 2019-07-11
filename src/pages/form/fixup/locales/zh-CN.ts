@@ -11,7 +11,9 @@ export default {
   "form-fixup.issue.required": "请输入问题描述",
   "form-fixup.remark.label": "备注",
   "form-fixup.remark.placeholder": " ",
-
+  "form-fixup.model.label": "设备型号",
+  "form-fixup.model.required": "请输入设备型号",
+  "form-fixup.model.placeholder": "例如:ThinkPad X1 Carbon",
   "form-fixup.basic.title": "基础表单",
   "form-fixup.basic.description":
     "进行维修登记后，可以获取维修编号并追踪维修进度。",

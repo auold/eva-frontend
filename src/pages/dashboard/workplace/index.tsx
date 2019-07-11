@@ -45,6 +45,10 @@ const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
 }) => {
   const loading = currentUser && Object.keys(currentUser).length;
   const time = new Date();
+  let content = '祝你开心每一天！';
+  if (currentUser.name == '笛先生'){
+    content = '祝你满绩每一天！'
+  }
   let greeting = " ";
   if (time.getHours() < 10) {
     greeting = "早安";
@@ -66,7 +70,7 @@ const PageHeaderContent: React.FC<{ currentUser: CurrentUser }> = ({
       <div className={styles.content}>
         <div className={styles.contentTitle}>
           {greeting}，{currentUser.name}
-          ，祝你开心每一天！
+          ，{content}
         </div>
         <div>
           {currentUser.title} | {currentUser.group}

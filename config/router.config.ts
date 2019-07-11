@@ -76,6 +76,9 @@ export default [
             path: "/details/fixup/:id",
             name: "fixup-details",
             component: "./details/fixup"
+          },
+          {
+            component: "./404"
           }
         ]
       }, // details

@@ -98,6 +98,25 @@ class Fixup extends Component<FixupProps> {
             </FormItem>
             <FormItem
               {...formItemLayout}
+              label={<FormattedMessage id="form-fixup.model.label" />}
+            >
+              {getFieldDecorator("model", {
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: "form-fixup.model.required" })
+                  }
+                ]
+              })(
+                <Input
+                  placeholder={formatMessage({
+                    id: "form-fixup.model.placeholder"
+                  })}
+                />
+              )}
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
               label={<FormattedMessage id="form-fixup.owner.label" />}
             >
               {getFieldDecorator("owner", {
