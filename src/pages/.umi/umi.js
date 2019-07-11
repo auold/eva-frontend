@@ -3,7 +3,7 @@ import history from './history';
 import '../../global.tsx';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import findRoute from 'D:/EVA-frontend/node_modules/umi-build-dev/lib/findRoute.js';
+import findRoute from 'D:/Files/code/evaf/node_modules/umi-build-dev/lib/findRoute.js';
 
 
 // runtime plugins
@@ -65,7 +65,7 @@ if (__IS_BROWSER) {
 // export server render
 let serverRender, ReactDOMServer;
 if (!__IS_BROWSER) {
-  serverRender = async (ctx) => {
+  serverRender = async (ctx = {}) => {
     const pathname = ctx.req.url;
     require('@tmp/history').default.push(pathname);
     let props = {};
