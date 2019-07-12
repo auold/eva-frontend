@@ -4,7 +4,7 @@ import {
   ActivitiesType,
   NoticeType,
   RadarDataType,
-  UserInfo
+  UserInfoType
 } from "./data.d";
 import {
   fakeChartData,
@@ -17,7 +17,7 @@ export interface ModalState {
   projectNotice: NoticeType[];
   activities: ActivitiesType[];
   radarData: RadarDataType[];
-  currentUserInfo: Partial<UserInfo>
+  currentUserInfo: Partial<UserInfoType>;
 }
 
 export type Effect = (

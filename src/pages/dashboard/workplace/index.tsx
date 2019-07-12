@@ -14,7 +14,7 @@ import {
   ActivitiesType,
   NoticeType,
   RadarDataType,
-  UserInfo
+  UserInfoType
 } from "./data.d";
 
 const links = [
@@ -35,11 +35,11 @@ interface dashboardWorkplaceProps {
   dispatch: Dispatch<any>;
   projectLoading: boolean;
   activitiesLoading: boolean;
-  currentUserInfo: UserInfo;
+  currentUserInfo: UserInfoType;
   currentUserInfoLoading: boolean;
 }
 
-const PageHeaderContent: React.FC<{ currentUserInfo: UserInfo }> = ({
+const PageHeaderContent: React.FC<{ currentUserInfo: UserInfoType }> = ({
   currentUserInfo
 }) => {
   const loading = currentUserInfo && Object.keys(currentUserInfo).length;
@@ -79,7 +79,7 @@ const PageHeaderContent: React.FC<{ currentUserInfo: UserInfo }> = ({
   );
 };
 
-const ExtraContent: React.FC<{ currentUserInfo: UserInfo }> = ({
+const ExtraContent: React.FC<{ currentUserInfo: UserInfoType }> = ({
     currentUserInfo
 }) => {
   const loading = currentUserInfo && Object.keys(currentUserInfo).length;
