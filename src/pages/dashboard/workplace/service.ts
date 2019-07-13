@@ -12,6 +12,6 @@ export async function fakeChartData() {
   return request("/api/fake_chart_data");
 }
 
-export async function queryCurrent() {
-  return request("/api/currentUser");
+export async function queryCurrentUserInfo() {
+  return request("/api/user/currentUser")
 }

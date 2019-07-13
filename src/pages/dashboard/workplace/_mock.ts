@@ -192,18 +192,22 @@ const getActivities = [
   }
 ];
 
-const currentUserInfo = {
+// our api implementation
+const currentUser = {
+  userid: 1,
   name: "笛先生",
   avatar: "https://itszzz.top/img/avatar.png",
-  userid: 1,
   email: "di@xm.ug",
-  signature: "海纳百川，有容乃大",
   title: "技术骨干",
-  group: "电器部"
-};
+  group: "电器部",
+  fixcount: {
+    weekly: 5000,
+    total: 20000
+  },
+}
 
 export default {
   "GET  /api/project/notice": getNotice,
   "GET  /api/activities": getActivities,
-  "GET  /api/currentUser": currentUserInfo
+  "GET  /api/user/currentUser": currentUser
 };
