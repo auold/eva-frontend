@@ -56,7 +56,7 @@ export interface RadarDataType {
   value: number;
 }
 
-export interface UserInfo {
+export interface UserInfoType {
   userid: number,
   name: string,
   avatar: string,

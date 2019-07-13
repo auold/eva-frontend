@@ -1,44 +1,64 @@
 import { AnyAction, Reducer } from "redux";
-
 import { EffectsCommandMap } from "dva";
-import { AdvancedProfileData } from "./data.d";
-import { queryAdvancedProfile } from "./service";
+import { TicketInfoType, BriefUserInfoType } from "./data.d";
+import { queryTicketInfo, queryBriefUserInfo } from "./service";
+
+export interface ModalState {
+  ticketInfo: Partial<TicketInfoType>;
+  creatorInfo: Partial<BriefUserInfoType>;
+}
 
 export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & {
-    select: <T>(func: (state: AdvancedProfileData) => T) => T;
-  }
+    action: AnyAction,
+    effects: EffectsCommandMap & {
+      select: <T>(func: (state: ModalState) => T) => T;
+    }
 ) => void;
 
 export interface ModelType {
   namespace: string;
-  state: AdvancedProfileData;
-  effects: {
-    fetchAdvanced: Effect;
-  };
+  state: ModalState;
   reducers: {
-    show: Reducer<AdvancedProfileData>;
+    show: Reducer<ModalState>;
   };
+  effects: {
+    init: Effect;
+    fetchTicketInfo: Effect;
+    fetchCreatorInfo: Effect;
+  }
 }
 
 const Model: ModelType = {
   namespace: "detailsFixup",
-
   state: {
-    advancedOperation1: [],
-    advancedOperation2: [],
-    advancedOperation3: []
+    ticketInfo: {},
+    creatorInfo: {},
   },
-
   effects: {
-    *fetchAdvanced(_, { call, put }) {
-      const response = yield call(queryAdvancedProfile);
+    *init({ payload }, { put }) {
+      yield put({
+        type: "fetchTicketInfo",
+        payload: payload,
+      })
+    },
+    *fetchTicketInfo({ payload }, { call, put }) {
+      const response = yield call(queryTicketInfo, payload.ticketId);
       yield put({
         type: "show",
-        payload: response
-      });
-    }
+        payload: {
+          ticketInfo: response
+        },
+      })
+    },
+    *fetchCreatorInfo({ payload }, { call, put }) {
+      const response = yield call(queryBriefUserInfo, payload.creatorId);
+      yield put({
+        type: "show",
+        payload: {
+          creatorInfo: response
+        },
+      })
+    },
   },
 
   reducers: {

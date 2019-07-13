@@ -1,74 +1,31 @@
 import {
   Avatar,
   Badge,
-  Button,
   Card,
   Col,
   Descriptions,
-  Divider,
-  Dropdown,
   Icon,
   List,
-  Menu,
   Popover,
   Row,
   Steps,
-  Table,
-  Tooltip
+  Skeleton,
 } from "antd";
 import { GridContent, PageHeaderWrapper } from "@ant-design/pro-layout";
 import React, { Component, Fragment } from "react";
-
 import { Dispatch } from "redux";
 import classNames from "classnames";
 import { connect } from "dva";
-import { AdvancedProfileData } from "./data.d";
 import styles from "./style.less";
-import { ActivitiesType } from "@/pages/dashboard/workplace/data";
+import { TicketInfoType, BriefUserInfoType } from "./data.d";
+import { ModalState } from "./model";
+import { RouteComponentProps } from "react-router";
+import moment from "moment";
 
 const { Step } = Steps;
-const ButtonGroup = Button.Group;
 
 const getWindowWidth = () =>
   window.innerWidth || document.documentElement.clientWidth;
-
-const menu = (
-  <Menu>
-    <Menu.Item key="1">选项一</Menu.Item>
-    <Menu.Item key="2">选项二</Menu.Item>
-    <Menu.Item key="3">选项三</Menu.Item>
-  </Menu>
-);
-
-const action = <Fragment></Fragment>;
-
-const extra = (
-  <Row
-    style={{
-      minWidth: 400
-    }}
-  >
-    <Col xs={24} sm={12}>
-      <div className={styles.textSecondary}>状态</div>
-      <div className={styles.heading}>维修中</div>
-    </Col>
-  </Row>
-);
-
-const description = (
-  <Descriptions className={styles.headerList} size="small" column={2}>
-    <Descriptions.Item label="创建人">狄先生</Descriptions.Item>
-    <Descriptions.Item label="所属班次">全部班</Descriptions.Item>
-    <Descriptions.Item label="机主姓名">狄先生</Descriptions.Item>
-    <Descriptions.Item label="手机号">18888188181</Descriptions.Item>
-    <Descriptions.Item label="登记种类">电脑</Descriptions.Item>
-    <Descriptions.Item label="品牌型号">联想X1C</Descriptions.Item>
-    <Descriptions.Item label="登记时间">2017-07-07</Descriptions.Item>
-    <Descriptions.Item label="问题情况">
-      电脑登陆教务网显示满绩
-    </Descriptions.Item>
-  </Descriptions>
-);
 
 const desc1 = (
   <div className={classNames(styles.textSecondary, styles.stepDescription)}>
@@ -125,84 +82,119 @@ const customDot = (
   return dot;
 };
 
-const data = [
-  {
-    title: "Mr. DI",
-    description: "电脑密码是dzpwd"
-  }
-];
+interface detailsFixupProps {
+  dispatch: Dispatch<any>;
+  ticketInfo: TicketInfoType;
+  creatorInfo: BriefUserInfoType;
+}
 
-const columns = [
-  {
-    title: "操作类型",
-    dataIndex: "type",
-    key: "type"
-  },
-  {
-    title: "操作人",
-    dataIndex: "name",
-    key: "name"
-  },
-  {
-    title: "执行结果",
-    dataIndex: "status",
-    key: "status",
-    render: (text: string) => {
-      if (text === "agree") {
-        return <Badge status="success" text="成功" />;
-      }
-      return <Badge status="error" text="驳回" />;
-    }
-  },
-  {
-    title: "操作时间",
-    dataIndex: "updatedAt",
-    key: "updatedAt"
-  },
-  {
-    title: "备注",
-    dataIndex: "memo",
-    key: "memo"
+interface detailsFixupStates {
+  stepDirection: "horizontal" | "vertical";
+}
+
+interface SummaryContentProps {
+  ticketInfo: TicketInfoType,
+  creatorInfo: BriefUserInfoType,
+  loadCreatorInfo: any;
+  children: any;
+}
+
+const SummaryContent: React.FC<SummaryContentProps> = ({
+  ticketInfo, creatorInfo, loadCreatorInfo, children
+}) => {
+  const loading = ticketInfo && Object.keys(ticketInfo).length;
+  if(!loading) {
+    return <Skeleton paragraph={{ rows: 4 }} active />
   }
-];
+
+  const statusContent = <Row
+      style={{
+        minWidth: 400
+      }}
+  >
+    <Col xs={24} sm={12}>
+      <div className={styles.textSecondary}>状态</div>
+      <div className={styles.heading}>{(() => {
+            console.log(ticketInfo.status);
+            switch (ticketInfo.status) {
+              case 0:
+                return "维修已创建";
+                break;
+              case 1:
+                return "维修中";
+                break;
+              case 2:
+                return "维修完成待取回";
+                break;
+              case 3:
+                return "已取回";
+                break;
+              default:
+                return "-";
+            }
+          }
+      )()}</div>
+    </Col>
+  </Row>;
+
+  let creator = "-";
+  const creatorInfoLoaded = creatorInfo && Object.keys(creatorInfo).length;
+  if (creatorInfoLoaded){
+    creator = creatorInfo.name;
+  }else{
+    loadCreatorInfo(ticketInfo.creator);
+  }
+  // TODO: get user info by creator
+  // TODO: fix created_at display
+  const description = (
+      <Descriptions className={styles.headerList} size="small" column={2}>
+        <Descriptions.Item label="创建人">{creator}</Descriptions.Item>
+        <Descriptions.Item label="创建班次">星期 {ticketInfo.created_at.weekday} ,第 {ticketInfo.created_at.no} 班</Descriptions.Item>
+        <Descriptions.Item label="机主姓名">{ticketInfo.owner}</Descriptions.Item>
+        <Descriptions.Item label="手机号">{ticketInfo.phone}</Descriptions.Item>
+        <Descriptions.Item label="登记种类">{ticketInfo.type === 0 ? "电器" : "电脑"}</Descriptions.Item>
+        <Descriptions.Item label="品牌型号">{ticketInfo.device}</Descriptions.Item>
+        <Descriptions.Item label="登记时间">{moment(+moment.utc(ticketInfo.created_at.time)).format('llll')}</Descriptions.Item>
+        <Descriptions.Item label="问题情况">{ticketInfo.description}</Descriptions.Item>
+      </Descriptions>
+  );
+
+  return (
+      <PageHeaderWrapper
+          title={"维修编号：" + ticketInfo.ticketId.toString()}
+          content={description}
+          extraContent={statusContent}
+      >
+        { children }
+      </PageHeaderWrapper>
+  )
+};
 
 @connect(
   ({
-    detailsFixup,
-    loading
+    detailsFixup: { ticketInfo, creatorInfo },
+    loading,
   }: {
-    detailsFixup: AdvancedProfileData;
-    loading: {
-      effects: { [key: string]: boolean };
-    };
+    detailsFixup: ModalState;
+    loading: { effects: any };
   }) => ({
-    detailsFixup,
-    loading: loading.effects["detailsFixup/fetchAdvanced"]
+    ticketInfo, creatorInfo
   })
 )
-class Fixup extends Component<
-  {
-    loading: boolean;
-    detailsFixup: AdvancedProfileData;
-    dispatch: Dispatch<any>;
-  },
-  {
-    operationKey: string;
-    stepDirection: "horizontal" | "vertical";
+
+class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFixupStates> {
+  constructor(props: detailsFixupProps & RouteComponentProps){
+    super(props);
+    this.state = { stepDirection: "horizontal" };
   }
-> {
-  public state: {
-    operationKey: string;
-    stepDirection: "horizontal" | "vertical";
-  } = {
-    operationKey: "tab1",
-    stepDirection: "horizontal"
-  };
 
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: "detailsFixup/fetchAdvanced"
+      type: "detailsFixup/init",
+      payload: {
+        ticketId: this.props.match.params["id"],
+      }
     });
 
     this.setStepDirection();
@@ -212,10 +204,6 @@ class Fixup extends Component<
   componentWillUnmount() {
     window.removeEventListener("resize", this.setStepDirection);
   }
-
-  onOperationTabChange = (key: string) => {
-    this.setState({ operationKey: key });
-  };
 
   setStepDirection = () => {
     const { stepDirection } = this.state;
@@ -231,54 +219,24 @@ class Fixup extends Component<
     }
   };
 
+  loadCreatorInfo = (creatorId: number) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "detailsFixup/fetchCreatorInfo",
+      payload: {
+        creatorId,
+      }
+    })
+  };
+
   render() {
-    const { stepDirection, operationKey } = this.state;
-    const { detailsFixup, loading } = this.props;
+    const { stepDirection } = this.state;
     const {
-      advancedOperation1,
-      advancedOperation2,
-      advancedOperation3
-    } = detailsFixup;
-    const contentList = {
-      tab1: (
-        <Table
-          pagination={false}
-          loading={loading}
-          dataSource={advancedOperation1}
-          columns={columns}
-        />
-      ),
-      tab2: (
-        <Table
-          pagination={false}
-          loading={loading}
-          dataSource={advancedOperation2}
-          columns={columns}
-        />
-      ),
-      tab3: (
-        <Table
-          pagination={false}
-          loading={loading}
-          dataSource={advancedOperation3}
-          columns={columns}
-        />
-      )
-    };
+      ticketInfo,
+      creatorInfo,
+    } = this.props;
     return (
-      <PageHeaderWrapper
-        title="维修编号：234231029431"
-        extra={action}
-        content={description}
-        extraContent={extra}
-        tabActiveKey="detail"
-        tabList={[
-          {
-            key: "detail",
-            tab: "详情"
-          }
-        ]}
-      >
+      <SummaryContent ticketInfo={ticketInfo} creatorInfo={creatorInfo} loadCreatorInfo={this.loadCreatorInfo}>
         <div
           style={{
             margin: 24,
@@ -302,7 +260,7 @@ class Fixup extends Component<
             <Card title="评论" style={{ marginBottom: 24 }}>
               <List
                 itemLayout="horizontal"
-                dataSource={data}
+                dataSource={[{title: creatorInfo.name || "...", description: ticketInfo.note || "..."}]}
                 renderItem={item => (
                   <List.Item>
                     <List.Item.Meta
@@ -318,7 +276,7 @@ class Fixup extends Component<
             </Card>
           </GridContent>
         </div>
-      </PageHeaderWrapper>
+      </SummaryContent>
     );
   }
 }
