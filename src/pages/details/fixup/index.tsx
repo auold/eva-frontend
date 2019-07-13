@@ -1,13 +1,11 @@
 import {
   Avatar,
   Badge,
-  Button,
   Card,
   Col,
   Descriptions,
   Icon,
   List,
-  Menu,
   Popover,
   Row,
   Steps,
@@ -19,24 +17,15 @@ import { Dispatch } from "redux";
 import classNames from "classnames";
 import { connect } from "dva";
 import styles from "./style.less";
-import { TicketInfoType } from "./data.d";
+import { TicketInfoType, BriefUserInfoType } from "./data.d";
 import { ModalState } from "./model";
-import {RouteComponentProps} from "react-router";
-import {switchCase} from "@babel/types";
+import { RouteComponentProps } from "react-router";
+import moment from "moment";
 
 const { Step } = Steps;
-const ButtonGroup = Button.Group;
 
 const getWindowWidth = () =>
   window.innerWidth || document.documentElement.clientWidth;
-
-const menu = (
-  <Menu>
-    <Menu.Item key="1">选项一</Menu.Item>
-    <Menu.Item key="2">选项二</Menu.Item>
-    <Menu.Item key="3">选项三</Menu.Item>
-  </Menu>
-);
 
 const desc1 = (
   <div className={classNames(styles.textSecondary, styles.stepDescription)}>
@@ -93,58 +82,25 @@ const customDot = (
   return dot;
 };
 
-const data = [
-  {
-    title: "Mr. DI",
-    description: "电脑密码是dzpwd"
-  }
-];
-
-const columns = [
-  {
-    title: "操作类型",
-    dataIndex: "type",
-    key: "type"
-  },
-  {
-    title: "操作人",
-    dataIndex: "name",
-    key: "name"
-  },
-  {
-    title: "执行结果",
-    dataIndex: "status",
-    key: "status",
-    render: (text: string) => {
-      if (text === "agree") {
-        return <Badge status="success" text="成功" />;
-      }
-      return <Badge status="error" text="驳回" />;
-    }
-  },
-  {
-    title: "操作时间",
-    dataIndex: "updatedAt",
-    key: "updatedAt"
-  },
-  {
-    title: "备注",
-    dataIndex: "memo",
-    key: "memo"
-  }
-];
-
 interface detailsFixupProps {
   dispatch: Dispatch<any>;
   ticketInfo: TicketInfoType;
+  creatorInfo: BriefUserInfoType;
 }
 
 interface detailsFixupStates {
   stepDirection: "horizontal" | "vertical";
 }
 
-const SummaryContent: React.FC<{ ticketInfo: TicketInfoType, children: any }> = ({
-  ticketInfo, children
+interface SummaryContentProps {
+  ticketInfo: TicketInfoType,
+  creatorInfo: BriefUserInfoType,
+  loadCreatorInfo: any;
+  children: any;
+}
+
+const SummaryContent: React.FC<SummaryContentProps> = ({
+  ticketInfo, creatorInfo, loadCreatorInfo, children
 }) => {
   const loading = ticketInfo && Object.keys(ticketInfo).length;
   if(!loading) {
@@ -181,18 +137,24 @@ const SummaryContent: React.FC<{ ticketInfo: TicketInfoType, children: any }> = 
     </Col>
   </Row>;
 
-  console.log(ticketInfo.created_at.time);
+  let creator = "-";
+  const creatorInfoLoaded = creatorInfo && Object.keys(creatorInfo).length;
+  if (creatorInfoLoaded){
+    creator = creatorInfo.name;
+  }else{
+    loadCreatorInfo(ticketInfo.creator);
+  }
   // TODO: get user info by creator
   // TODO: fix created_at display
   const description = (
       <Descriptions className={styles.headerList} size="small" column={2}>
-        <Descriptions.Item label="创建人">{ticketInfo.creator}</Descriptions.Item>
-        <Descriptions.Item label="创建班次">{ticketInfo.created_at.weekday}</Descriptions.Item>
+        <Descriptions.Item label="创建人">{creator}</Descriptions.Item>
+        <Descriptions.Item label="创建班次">星期 {ticketInfo.created_at.weekday} ,第 {ticketInfo.created_at.no} 班</Descriptions.Item>
         <Descriptions.Item label="机主姓名">{ticketInfo.owner}</Descriptions.Item>
         <Descriptions.Item label="手机号">{ticketInfo.phone}</Descriptions.Item>
         <Descriptions.Item label="登记种类">{ticketInfo.type === 0 ? "电器" : "电脑"}</Descriptions.Item>
         <Descriptions.Item label="品牌型号">{ticketInfo.device}</Descriptions.Item>
-        <Descriptions.Item label="登记时间">{ticketInfo.created_at.time}</Descriptions.Item>
+        <Descriptions.Item label="登记时间">{moment(+moment.utc(ticketInfo.created_at.time)).format('llll')}</Descriptions.Item>
         <Descriptions.Item label="问题情况">{ticketInfo.description}</Descriptions.Item>
       </Descriptions>
   );
@@ -210,15 +172,16 @@ const SummaryContent: React.FC<{ ticketInfo: TicketInfoType, children: any }> = 
 
 @connect(
   ({
-    detailsFixup: { ticketInfo},
+    detailsFixup: { ticketInfo, creatorInfo },
     loading,
   }: {
     detailsFixup: ModalState;
     loading: { effects: any };
   }) => ({
-    ticketInfo,
+    ticketInfo, creatorInfo
   })
 )
+
 class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFixupStates> {
   constructor(props: detailsFixupProps & RouteComponentProps){
     super(props);
@@ -230,7 +193,6 @@ class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFi
     dispatch({
       type: "detailsFixup/init",
       payload: {
-        // TODO: change to router
         ticketId: this.props.match.params["id"],
       }
     });
@@ -257,13 +219,24 @@ class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFi
     }
   };
 
+  loadCreatorInfo = (creatorId: number) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "detailsFixup/fetchCreatorInfo",
+      payload: {
+        creatorId,
+      }
+    })
+  };
+
   render() {
     const { stepDirection } = this.state;
     const {
-      ticketInfo
+      ticketInfo,
+      creatorInfo,
     } = this.props;
     return (
-      <SummaryContent ticketInfo={ticketInfo}>
+      <SummaryContent ticketInfo={ticketInfo} creatorInfo={creatorInfo} loadCreatorInfo={this.loadCreatorInfo}>
         <div
           style={{
             margin: 24,
@@ -287,7 +260,7 @@ class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFi
             <Card title="评论" style={{ marginBottom: 24 }}>
               <List
                 itemLayout="horizontal"
-                dataSource={data}
+                dataSource={[{title: creatorInfo.name || "...", description: ticketInfo.note || "..."}]}
                 renderItem={item => (
                   <List.Item>
                     <List.Item.Meta

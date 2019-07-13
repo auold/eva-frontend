@@ -1,10 +1,11 @@
 import { AnyAction, Reducer } from "redux";
 import { EffectsCommandMap } from "dva";
-import { TicketInfoType } from "./data.d";
-import { queryTicketInfo } from "./service";
+import { TicketInfoType, BriefUserInfoType } from "./data.d";
+import { queryTicketInfo, queryBriefUserInfo } from "./service";
 
 export interface ModalState {
   ticketInfo: Partial<TicketInfoType>;
+  creatorInfo: Partial<BriefUserInfoType>;
 }
 
 export type Effect = (
@@ -23,6 +24,7 @@ export interface ModelType {
   effects: {
     init: Effect;
     fetchTicketInfo: Effect;
+    fetchCreatorInfo: Effect;
   }
 }
 
@@ -30,6 +32,7 @@ const Model: ModelType = {
   namespace: "detailsFixup",
   state: {
     ticketInfo: {},
+    creatorInfo: {},
   },
   effects: {
     *init({ payload }, { put }) {
@@ -44,6 +47,15 @@ const Model: ModelType = {
         type: "show",
         payload: {
           ticketInfo: response
+        },
+      })
+    },
+    *fetchCreatorInfo({ payload }, { call, put }) {
+      const response = yield call(queryBriefUserInfo, payload.creatorId);
+      yield put({
+        type: "show",
+        payload: {
+          creatorInfo: response
         },
       })
     },

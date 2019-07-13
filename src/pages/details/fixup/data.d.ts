@@ -1,39 +1,3 @@
-import * as moment from "moment";
-import _date = moment.unitOfTime._date;
-
-export interface AdvancedOperation1 {
-  key: string;
-  type: string;
-  name: string;
-  status: string;
-  updatedAt: string;
-  memo: string;
-}
-
-export interface AdvancedOperation2 {
-  key: string;
-  type: string;
-  name: string;
-  status: string;
-  updatedAt: string;
-  memo: string;
-}
-
-export interface AdvancedOperation3 {
-  key: string;
-  type: string;
-  name: string;
-  status: string;
-  updatedAt: string;
-  memo: string;
-}
-
-export interface AdvancedProfileData {
-  advancedOperation1: AdvancedOperation1[];
-  advancedOperation2: AdvancedOperation2[];
-  advancedOperation3: AdvancedOperation3[];
-}
-
 export interface TicketInfoType {
   ticketId: number;
   type: number;
@@ -49,4 +13,12 @@ export interface TicketInfoType {
     time: string;
   },
   status: number
+}
+
+export interface BriefUserInfoType {
+  name: string,
+  avatar: string,
+  email: string,
+  title: string,
+  group: string
 }
