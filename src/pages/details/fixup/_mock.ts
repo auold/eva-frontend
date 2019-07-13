@@ -77,7 +77,7 @@ const getTicketOne = {
   phone: "+86 10086",
   description: "电源灯不亮了",
   note: "机主属实弟弟",
-  creator: 1,
+  creator: 2,
   created_at: {
     weekday: 1,
     no: 1,
@@ -86,7 +86,16 @@ const getTicketOne = {
   status: 1
 };
 
+const getUserTwoInfo = {
+  name: "第二先生",
+  avatar: "",
+  email: "",
+  title: "",
+  group: ""
+};
+
 export default {
   "GET  /api/profile/advanced": getProfileAdvancedData,
   "GET  /api/fixup/1": getTicketOne,
+  "GET  /api/user/2": getUserTwoInfo
 };
