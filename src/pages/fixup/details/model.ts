@@ -29,7 +29,7 @@ export interface ModelType {
 }
 
 const Model: ModelType = {
-  namespace: "detailsFixup",
+  namespace: "FixupDetails",
   state: {
     ticketInfo: {},
     creatorInfo: {},

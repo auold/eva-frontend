@@ -1,93 +1,73 @@
 export default [
   {
-    path: "/user",
-    component: "../layouts/UserLayout",
+    path: '/user',
+    component: '../layouts/UserLayout',
     routes: [
       {
-        path: "user",
-        redirect: "/user/login"
+        path: 'user',
+        redirect: '/user/login',
       },
       {
-        name: "login",
-        path: "/user/login",
-        component: "./user/login"
+        name: 'login',
+        path: '/user/login',
+        component: './user/login',
       },
       {
-        component: "404"
-      }
-    ]
+        component: '404',
+      },
+    ],
   },
   {
-    path: "/",
-    component: "../layouts/BasicLayout",
-    Routes: ["src/pages/Authorized"],
-    authority: ["admin", "user"],
+    path: '/',
+    component: '../layouts/BasicLayout',
+    Routes: ['src/pages/Authorized'],
+    authority: ['admin', 'user'],
     routes: [
       // TODO: change to login
       {
-        path: "/",
-        redirect: "/dashboard/workplace",
-        // redirect: '/user',
-        authority: ["admin", "user"]
+        path: '/',
+        redirect: '/dashboard',
       }, // default page
       {
-        path: "/dashboard",
-        name: "dashboard",
-        icon: "dashboard",
-        routes: [
-          {
-            path: "/dashboard/workplace",
-            name: "workplace",
-            component: "./dashboard/workplace"
-          }
-        ]
+        path: 'dashboard',
+        name: 'dashboard',
+        icon: 'dashboard',
+        component: './dashboard/workplace',
       }, // dashboard
       {
-        path: "/form",
-        name: "form",
-        icon: "form",
+        path: 'fixup',
+        name: 'fixup',
+        icon: 'tool',
         routes: [
           {
-            path: "/form/fixup",
-            name: "fixup-form",
-            component: "./form/fixup"
-          }
-        ]
-      }, // form
-      {
-        path: "/query",
-        name: "query",
-        icon: "search",
-        routes: [
-          {
-            path: "/query/fixup",
-            name: "fixup-query",
-            component: "./query/fixup"
-          }
-        ]
-      }, //query
-      {
-        path: "/details",
-        hideInMenu: true,
-        name: "details",
-        icon: "profile",
-        routes: [
-          {
-            path: "/details/fixup/:id",
-            name: "fixup-details",
-            component: "./details/fixup"
+            path: 'new',
+            name: 'fixup-new',
+            icon: "form",
+            component: './fixup/new',
           },
           {
-            component: "./404"
-          }
-        ]
-      }, // details
+            path: 'list',
+            name: 'fixup-list',
+            icon: "search",
+            component: './fixup/list',
+          },
+          {
+            path: './details/:id',
+            name: 'fixup-details',
+            component: './fixup/details',
+            hideInMenu: true,
+          },
+          {
+            component: './404',
+          },
+        ],
+      }, // fixup
       {
-        component: "./404"
-      }
-    ]
+        component: './404',
+      },
+    ],
   },
   {
-    component: "./404"
-  }
+    component: './404',
+  },
 ];

@@ -15,15 +15,11 @@ const getTicketOne = {
   status: 1
 };
 
-const getUserTwoInfo = {
-  name: "第二先生",
-  avatar: "",
-  email: "",
-  title: "",
-  group: ""
+const postedNewForm = (req: any, res: any) => {
+  res.send({ message: "Ok" });
 };
 
 export default {
   "GET  /api/fixup/1": getTicketOne,
-  "GET  /api/user/2": getUserTwoInfo
+  "POST /api/forms": postedNewForm,
 };
