@@ -82,13 +82,13 @@ const customDot = (
   return dot;
 };
 
-interface detailsFixupProps {
+interface FixupDetailsProps {
   dispatch: Dispatch<any>;
   ticketInfo: TicketInfoType;
   creatorInfo: BriefUserInfoType;
 }
 
-interface detailsFixupStates {
+interface FixupDetailsStates {
   stepDirection: "horizontal" | "vertical";
 }
 
@@ -172,18 +172,18 @@ const SummaryContent: React.FC<SummaryContentProps> = ({
 
 @connect(
   ({
-    detailsFixup: { ticketInfo, creatorInfo },
+    FixupDetails: { ticketInfo, creatorInfo },
     loading,
   }: {
-    detailsFixup: ModalState;
+    FixupDetails: ModalState;
     loading: { effects: any };
   }) => ({
     ticketInfo, creatorInfo
   })
 )
 
-class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFixupStates> {
-  constructor(props: detailsFixupProps & RouteComponentProps){
+class Fixup extends Component<FixupDetailsProps & RouteComponentProps, FixupDetailsStates> {
+  constructor(props: FixupDetailsProps & RouteComponentProps){
     super(props);
     this.state = { stepDirection: "horizontal" };
   }
@@ -191,7 +191,7 @@ class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFi
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: "detailsFixup/init",
+      type: "FixupDetails/init",
       payload: {
         ticketId: this.props.match.params["id"],
       }
@@ -222,7 +222,7 @@ class Fixup extends Component<detailsFixupProps & RouteComponentProps, detailsFi
   loadCreatorInfo = (creatorId: number) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "detailsFixup/fetchCreatorInfo",
+      type: "FixupDetails/fetchCreatorInfo",
       payload: {
         creatorId,
       }
