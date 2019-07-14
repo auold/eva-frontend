@@ -9,7 +9,7 @@ import {
   Popover,
   Row,
   Steps,
-  Skeleton,
+  Skeleton
 } from "antd";
 import { GridContent, PageHeaderWrapper } from "@ant-design/pro-layout";
 import React, { Component, Fragment } from "react";
@@ -21,6 +21,7 @@ import { TicketInfoType, BriefUserInfoType } from "./data.d";
 import { ModalState } from "./model";
 import { RouteComponentProps } from "react-router";
 import moment from "moment";
+import { formatMessage } from "umi/locale";
 
 const { Step } = Steps;
 
@@ -93,97 +94,147 @@ interface FixupDetailsStates {
 }
 
 interface SummaryContentProps {
-  ticketInfo: TicketInfoType,
-  creatorInfo: BriefUserInfoType,
+  ticketInfo: TicketInfoType;
+  creatorInfo: BriefUserInfoType;
   loadCreatorInfo: any;
   children: any;
 }
 
 const SummaryContent: React.FC<SummaryContentProps> = ({
-  ticketInfo, creatorInfo, loadCreatorInfo, children
+  ticketInfo,
+  creatorInfo,
+  loadCreatorInfo,
+  children
 }) => {
   const loading = ticketInfo && Object.keys(ticketInfo).length;
-  if(!loading) {
-    return <Skeleton paragraph={{ rows: 4 }} active />
+  if (!loading) {
+    return <Skeleton paragraph={{ rows: 4 }} active />;
   }
 
-  const statusContent = <Row
+  const statusContent = (
+    <Row
       style={{
         minWidth: 400
       }}
-  >
-    <Col xs={24} sm={12}>
-      <div className={styles.textSecondary}>状态</div>
-      <div className={styles.heading}>{(() => {
+    >
+      <Col xs={24} sm={12}>
+        <div className={styles.textSecondary}>状态</div>
+        <div className={styles.heading}>
+          {(() => {
             console.log(ticketInfo.status);
             switch (ticketInfo.status) {
               case 0:
-                return "维修已创建";
+                return formatMessage({
+                  id: "fixup.fixup-details.fixup-has-been-created"
+                });
                 break;
               case 1:
-                return "维修中";
+                return formatMessage({ id: "fixup.fixup-details.fixing" });
                 break;
               case 2:
-                return "维修完成待取回";
+                return formatMessage({
+                  id: "fixup.fixup-details.waiting-for-owner"
+                });
                 break;
               case 3:
-                return "已取回";
+                return formatMessage({
+                  id: "fixup.fixup-details.fixup-finish"
+                });
                 break;
               default:
                 return "-";
             }
-          }
-      )()}</div>
-    </Col>
-  </Row>;
+          })()}
+        </div>
+      </Col>
+    </Row>
+  );
 
   let creator = "-";
   const creatorInfoLoaded = creatorInfo && Object.keys(creatorInfo).length;
-  if (creatorInfoLoaded){
+  if (creatorInfoLoaded) {
     creator = creatorInfo.name;
-  }else{
+  } else {
     loadCreatorInfo(ticketInfo.creator);
   }
   // TODO: get user info by creator
   // TODO: fix created_at display
   const description = (
-      <Descriptions className={styles.headerList} size="small" column={2}>
-        <Descriptions.Item label="创建人">{creator}</Descriptions.Item>
-        <Descriptions.Item label="创建班次">星期 {ticketInfo.created_at.weekday} ,第 {ticketInfo.created_at.no} 班</Descriptions.Item>
-        <Descriptions.Item label="机主姓名">{ticketInfo.owner}</Descriptions.Item>
-        <Descriptions.Item label="手机号">{ticketInfo.phone}</Descriptions.Item>
-        <Descriptions.Item label="登记种类">{ticketInfo.type === 0 ? "电器" : "电脑"}</Descriptions.Item>
-        <Descriptions.Item label="品牌型号">{ticketInfo.device}</Descriptions.Item>
-        <Descriptions.Item label="登记时间">{moment(+moment.utc(ticketInfo.created_at.time)).format('llll')}</Descriptions.Item>
-        <Descriptions.Item label="问题情况">{ticketInfo.description}</Descriptions.Item>
-      </Descriptions>
+    <Descriptions className={styles.headerList} size="small" column={2}>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.creator" })}
+      >
+        {creator}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.creator-shift" })}
+      >
+        星期 {ticketInfo.created_at.weekday} ,第 {ticketInfo.created_at.no} 班
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.owner-name" })}
+      >
+        {ticketInfo.owner}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.phone" })}
+      >
+        {ticketInfo.phone}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.device-type" })}
+      >
+        {ticketInfo.type === 0 ? "电器" : "电脑"}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.brand-model" })}
+      >
+        {ticketInfo.device}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.created-time" })}
+      >
+        {moment(+moment.utc(ticketInfo.created_at.time)).format("llll")}
+      </Descriptions.Item>
+      <Descriptions.Item
+        label={formatMessage({ id: "fixup.fixup-details.problems" })}
+      >
+        {ticketInfo.description}
+      </Descriptions.Item>
+    </Descriptions>
   );
 
   return (
-      <PageHeaderWrapper
-          title={"维修编号：" + ticketInfo.ticketId.toString()}
-          content={description}
-          extraContent={statusContent}
-      >
-        { children }
-      </PageHeaderWrapper>
-  )
+    <PageHeaderWrapper
+      title={
+        formatMessage({ id: "fixup.fixup-details.number" }) +
+        ticketInfo.ticketId.toString()
+      }
+      content={description}
+      extraContent={statusContent}
+    >
+      {children}
+    </PageHeaderWrapper>
+  );
 };
 
 @connect(
   ({
     FixupDetails: { ticketInfo, creatorInfo },
-    loading,
+    loading
   }: {
     FixupDetails: ModalState;
     loading: { effects: any };
   }) => ({
-    ticketInfo, creatorInfo
+    ticketInfo,
+    creatorInfo
   })
 )
-
-class Fixup extends Component<FixupDetailsProps & RouteComponentProps, FixupDetailsStates> {
-  constructor(props: FixupDetailsProps & RouteComponentProps){
+class Fixup extends Component<
+  FixupDetailsProps & RouteComponentProps,
+  FixupDetailsStates
+> {
+  constructor(props: FixupDetailsProps & RouteComponentProps) {
     super(props);
     this.state = { stepDirection: "horizontal" };
   }
@@ -193,7 +244,7 @@ class Fixup extends Component<FixupDetailsProps & RouteComponentProps, FixupDeta
     dispatch({
       type: "FixupDetails/init",
       payload: {
-        ticketId: this.props.match.params["id"],
+        ticketId: this.props.match.params["id"]
       }
     });
 
@@ -224,19 +275,20 @@ class Fixup extends Component<FixupDetailsProps & RouteComponentProps, FixupDeta
     dispatch({
       type: "FixupDetails/fetchCreatorInfo",
       payload: {
-        creatorId,
+        creatorId
       }
-    })
+    });
   };
 
   render() {
     const { stepDirection } = this.state;
-    const {
-      ticketInfo,
-      creatorInfo,
-    } = this.props;
+    const { ticketInfo, creatorInfo } = this.props;
     return (
-      <SummaryContent ticketInfo={ticketInfo} creatorInfo={creatorInfo} loadCreatorInfo={this.loadCreatorInfo}>
+      <SummaryContent
+        ticketInfo={ticketInfo}
+        creatorInfo={creatorInfo}
+        loadCreatorInfo={this.loadCreatorInfo}
+      >
         <div
           style={{
             margin: 24,
@@ -245,22 +297,51 @@ class Fixup extends Component<FixupDetailsProps & RouteComponentProps, FixupDeta
           className={styles.main}
         >
           <GridContent>
-            <Card title="流程进度" style={{ marginBottom: 24 }}>
+            <Card
+              title={formatMessage({
+                id: "fixup.fixup-details.fixup-progress"
+              })}
+              style={{ marginBottom: 24 }}
+            >
               <Steps
                 direction={stepDirection}
                 progressDot={customDot}
                 current={1}
               >
-                <Step title="创建维修" description={desc1} />
-                <Step title="维修中" description={desc2} />
-                <Step title="维修完成 待取回" />
-                <Step title="已取回" />
+                <Step
+                  title={formatMessage({
+                    id: "fixup.fixup-details.fixup-has-been-created"
+                  })}
+                  description={desc1}
+                />
+                <Step
+                  title={formatMessage({ id: "fixup.fixup-details.fixing" })}
+                  description={desc2}
+                />
+                <Step
+                  title={formatMessage({
+                    id: "fixup.fixup-details.waiting-for-owner"
+                  })}
+                />
+                <Step
+                  title={formatMessage({
+                    id: "fixup.fixup-details.fixup-finish"
+                  })}
+                />
               </Steps>
             </Card>
-            <Card title="评论" style={{ marginBottom: 24 }}>
+            <Card
+              title={formatMessage({ id: "fixup.fixup-details.comments" })}
+              style={{ marginBottom: 24 }}
+            >
               <List
                 itemLayout="horizontal"
-                dataSource={[{title: creatorInfo.name || "...", description: ticketInfo.note || "..."}]}
+                dataSource={[
+                  {
+                    title: creatorInfo.name || "...",
+                    description: ticketInfo.note || "..."
+                  }
+                ]}
                 renderItem={item => (
                   <List.Item>
                     <List.Item.Meta

@@ -5,6 +5,7 @@ import pwa from "./zh-CN/pwa";
 import settingDrawer from "./zh-CN/settingDrawer";
 import settings from "./zh-CN/settings";
 import dashboard from "./zh-CN/dashboard";
+import fixup from "./zh-CN/fixup";
 
 export default {
   "navBar.lang": "语言",
@@ -18,5 +19,6 @@ export default {
   ...settings,
   ...pwa,
   ...component,
-  ...dashboard
+  ...dashboard,
+  ...fixup
 };
